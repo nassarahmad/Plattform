@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const path = require('path');
+
 const { register, login, getMe } = require(path.join(__dirname, '../controllers/authController'));
-const { protect } = require(path.join(__dirname, '../middleware/authMiddleware'));
+const { protect } = require('../middleware/authMiddleware');
+const validate = require('../middleware/validate');
+const { registerSchema, loginSchema } = require('../schemas/auth');
 
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', validate(registerSchema), register);
+router.post('/login', validate(loginSchema), login);
 router.get('/me', protect, getMe);
 
 module.exports = router;

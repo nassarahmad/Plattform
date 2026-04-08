@@ -3,13 +3,25 @@ const express = require('express');
 const mongoose = require('mongoose');
 const http = require('http');
 const { initSocket } = require('./socket');
+const { helmetConfig, corsConfig, globalLimiter, authLimiter, sanitizeData }
+ =require('./middleware/security');
+
 const app = express();
 const server = http.createServer(app);
+// 1️⃣ Security Headers & CORS
+app.use(helmetConfig);
+app.use(corsConfig);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// 2️⃣ Global Rate Limit
+app.use(globalLimiter);
+// 3️⃣ Data Sanitization
+app.use(sanitizeData);
+
+app.use(express.json({ limit: '10kb' }));
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Routes
+app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'))

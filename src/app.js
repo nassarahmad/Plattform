@@ -13,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'))
+app.use('/api/reviews', require('./routes/reviewRoutes'));
 // Error Handler
 app.use(require('./middleware/errorMiddleware'));
 const io = initSocket(server);

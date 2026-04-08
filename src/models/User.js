@@ -11,7 +11,9 @@ role: {
     default: 'help_seeker' 
   },  permissions: { type: [String], default: [] } ,
     phone: String,
-isVerified: { type: Boolean, default: false }
+isVerified: { type: Boolean, default: false },
+averageRating: { type: Number, default: 0, min: 0, max: 5 },
+reviewCount: { type: Number, default: 0 }
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {

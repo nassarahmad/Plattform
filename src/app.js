@@ -4,34 +4,31 @@ const mongoose = require('mongoose');
 
 const app = express();
 
-// Body Parsing Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api/test', require('./routes/testRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/tasks', require('./routes/taskRoutes'));
 
-// Error Handling Middleware 
+// Error Handler
 app.use(require('./middleware/errorMiddleware'));
 
-// Database Connection
+// Database & Server
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log('✅ MongoDB Connected Successfully');
+    console.log('✅ MongoDB Connected');
   } catch (err) {
-    console.error('❌ MongoDB Connection Error:', err.message);
+    console.error('❌ DB Error:', err.message);
     process.exit(1);
   }
 };
 
-// Start Server
 const PORT = process.env.PORT || 3000;
 const startServer = async () => {
   await connectDB();
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV}]`);
-  });
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 };
 
 startServer();

@@ -13,7 +13,10 @@ role: {
     phone: String,
 isVerified: { type: Boolean, default: false },
 averageRating: { type: Number, default: 0, min: 0, max: 5 },
-reviewCount: { type: Number, default: 0 }
+reviewCount: { type: Number, default: 0 },
+badges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Badge' }],
+xp: { type: Number, default: 0 },
+level: { type: Number, default: 1 },
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {

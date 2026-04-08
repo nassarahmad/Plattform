@@ -2,7 +2,7 @@ const Review = require('../models/Review');
 const HelpRequest = require('../models/HelpRequest');
 const User = require('../models/User');
 const { sendNotification } = require('../utils/notification');
-
+const { checkAndAwardBadges } = require('../services/badgeService');
 exports.createReview = async (req, res, next) => {
   try {
     const { requestId, revieweeId, rating, comment } = req.body;
@@ -80,6 +80,7 @@ exports.createReview = async (req, res, next) => {
 
     // send notification (FIXED HERE)
     const io = req.app.get('io');
+    await checkAndAwardBadges(revieweeId, io);
 
     await sendNotification(io, revieweeId, {
       sender: reviewerId,

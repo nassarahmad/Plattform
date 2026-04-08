@@ -1,5 +1,6 @@
 const HelpRequest = require('../models/HelpRequest');
 const { sendNotification } = require('../utils/notification');
+const { checkAndAwardBadges } = require('../services/badgeService');
 
 
 exports.createRequest = async (req, res, next) => {
@@ -82,7 +83,13 @@ exports.updateStatus = async (req, res, next) => {
     if (!validStatuses.includes(status)) return res.status(400).json({ success: false, message: 'Invalid status' });
 
     const request = await HelpRequest.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+    if (status === 'completed') {
+      const io = req.app.get('io');
+      const usersToCheck = [request.createdBy.toString(), ...request.assignedHelpers.map(h => h.toString())];
+      for (const uid of usersToCheck) {
+        await checkAndAwardBadges(uid, io);
+      }
+    }
     res.json({ success: true,  request });
   } catch (err) { next(err); }
 };

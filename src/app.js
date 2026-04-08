@@ -1,8 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-
+const http = require('http');
+const { initSocket } = require('./socket');
 const app = express();
+const server = http.createServer(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -12,6 +14,8 @@ app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));
 // Error Handler
 app.use(require('./middleware/errorMiddleware'));
+const io = initSocket(server);
+app.set('io', io);
 
 // Database & Server
 const connectDB = async () => {
@@ -31,4 +35,4 @@ const startServer = async () => {
 };
 
 startServer();
-module.exports = app;
+module.exports = { app, io, server };

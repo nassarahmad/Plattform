@@ -1,0 +1,30 @@
+{
+  "auth": {
+    "login_success": "Login successful",
+    "register_success": "Registration successful",
+    "invalid_credentials": "Invalid email or password",
+    "email_exists": "Email is already registered",
+    "unauthorized": "Unauthorized. Please log in.",
+    "token_invalid": "Invalid or expired token"
+  },
+  "requests": {
+    "created": "Help request created successfully",
+    "not_found": "Request not found",
+    "not_pending": "Request is not in pending status",
+    "accepted": "Request accepted successfully",
+    "status_updated": "Status updated successfully"
+  },
+  "errors": {
+    "validation_failed": "Validation failed",
+    "forbidden": "You do not have permission to access this resource",
+    "server_error": "Internal server error",
+    "rate_limit": "Too many requests. Please try again later."
+  },
+  "notifications": {
+    "request_accepted_title": "Your request was accepted!",
+    "request_accepted_msg": "Helper {{name}} accepted your request.",
+    "badge_earned_title": "New badge earned! 🏅",
+    "badge_earned_msg": "Congratulations! You earned: {{badges}}",
+    "message_received": "New message in request {{title}}"
+  }
+}

@@ -1,4 +1,6 @@
 const HelpRequest = require('../models/HelpRequest');
+const { sendNotification } = require('../utils/notification');
+
 
 exports.createRequest = async (req, res, next) => {
   try {
@@ -31,7 +33,7 @@ exports.getNearbyRequests = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-exports.acceptRequest = async (req, res, next) => {
+/* exports.acceptRequest = async (req, res, next) => {
   try {
     const request = await HelpRequest.findById(req.params.id);
     if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
@@ -44,7 +46,34 @@ exports.acceptRequest = async (req, res, next) => {
     await request.save();
     res.json({ success: true, message: 'Request accepted successfully',  request });
   } catch (err) { next(err); }
-};
+}; */
+
+
+ exports.acceptRequest = async (req, res, next) => {
+  try {
+    const request = await HelpRequest.findById(req.params.id);
+    if (!request) return res.status(404).json({ success: false, message: 'Request not found' });
+    if (request.status !== 'pending') return res.status(400).json({ success: false, message: 'Request is not pending' });
+
+    request.status = 'accepted';
+    if (!request.assignedHelpers.includes(req.user._id)) {
+      request.assignedHelpers.push(req.user._id);
+    }
+    await request.save();
+
+    const io = req.app.get('io');
+    await sendNotification(io, request.createdBy, {
+      sender: req.user._id,
+      request: request._id,
+      type: 'request_accepted',
+      title: 'Request Accepted',
+      message: ` ${req.user.name} accepted your help request.`,
+      data: { helperId: req.user._id }
+    });
+
+    res.json({ success: true, message: 'Request accepted successfully',  request });
+  } catch (err) { next(err); }
+}; 
 
 exports.updateStatus = async (req, res, next) => {
   try {
@@ -57,3 +86,6 @@ exports.updateStatus = async (req, res, next) => {
     res.json({ success: true,  request });
   } catch (err) { next(err); }
 };
+
+
+

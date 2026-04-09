@@ -1,5 +1,3 @@
-const i18next = require('./config/i18n');
-const i18nextMiddleware = require('i18next-http-middleware');
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -23,7 +21,6 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 // Routes
-app.use(i18nextMiddleware.handle(i18next));
 app.use('/api/auth', authLimiter, require('./routes/authRoutes'));
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));

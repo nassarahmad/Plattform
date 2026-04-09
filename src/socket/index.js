@@ -18,7 +18,7 @@ const initSocket = (server) => {
       socket.user = { id: decoded.id, role: decoded.role }; 
       next();
     } catch (err) {
-      next(new Error('توكن غير صالح'));
+      next(new Error('invalid_token'));
     }
   });
 

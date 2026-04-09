@@ -7,6 +7,29 @@ import NotificationBell from '../components/notifications/NotificationBell';
 import { requestAPI } from '../api/requests';
 import { toast } from 'react-toastify';
 
+
+import Map from "../../components/Map";
+import CreateRequest from "../../components/CreateRequest";
+import { dummyRequests } from "../../data/helpRequests";
+
+export default function Dashboard() {
+  const [requests, setRequests] = useState(dummyRequests);
+
+  const addRequest = (req) => {
+    setRequests(prev => [...prev, req]);
+  };
+
+  return (
+    <div>
+      <h2>Help Map</h2>
+
+      <CreateRequest onCreate={addRequest} />
+
+      <Map requests={requests} />
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -87,6 +110,9 @@ export default function Dashboard() {
         <MapView 
           onRequestSelect={(req) => { setSelectedRequest(req); setShowChat(true); }}
         />
+        <Map users={[
+  { name: "Ahmad", lat: 31.95, lng: 35.91 }
+]} />
 
         {/* Request Details Panel */}
         {selectedRequest && !showChat && (

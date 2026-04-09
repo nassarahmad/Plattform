@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+/* import { createContext, useContext, useState, useEffect, useMemo } from 'react';
 import { authAPI } from '../api/auth';
 import { toast } from 'react-toastify';
 
@@ -17,7 +17,6 @@ export const AuthProvider = ({ children }) => {
           setUser(data.user);
         }
       } catch (err) {
-        console.error('Failed to load user:', err);
         authAPI.logout();
       } finally {
         setLoading(false);
@@ -43,7 +42,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (data) => {
     try {
-      const {  res } = await authAPI.register(data);
+      const { data: res } = await authAPI.register(data);
       localStorage.setItem('token', res.token);
       localStorage.setItem('user', JSON.stringify(res.user));
       setToken(res.token);
@@ -74,4 +73,38 @@ export const useAuth = () => {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
+}; */
+
+
+
+import { createContext, useContext, useEffect, useState } from "react";
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+
+  // ✅ Auto login
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) setUser(JSON.parse(savedUser));
+  }, []);
+
+  const login = (data) => {
+    localStorage.setItem("user", JSON.stringify(data));
+    setUser(data);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export const useAuth = () => useContext(AuthContext);

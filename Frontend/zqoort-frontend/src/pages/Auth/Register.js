@@ -1,0 +1,22 @@
+import { useState } from "react";
+import { registerUser } from "../../services/authService";
+
+export default function Register() {
+  const [form, setForm] = useState({ email: "", password: "" });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await registerUser(form);
+  };
+
+  return (
+    <div className="p-4">
+      <h2>Register</h2>
+      <form onSubmit={handleSubmit}>
+        <input placeholder="Email" onChange={e => setForm({...form, email: e.target.value})} />
+        <input placeholder="Password" type="password" onChange={e => setForm({...form, password: e.target.value})} />
+        <button type="submit">Register</button>
+      </form>
+    </div>
+  );
+}

@@ -1,14 +1,16 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Login from "./pages/Auth/Login";
 import MapPage from "./pages/map/MapPage";
+import Login from "./pages/auth/Login";
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MapPage />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+      <div className="min-h-screen bg-gray-900 text-white">
+        <Routes>
+          <Route path="/" element={<MapPage />} />
+          <Route path="/login" element={<Login />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }

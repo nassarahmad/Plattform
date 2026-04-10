@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { requestAPI } from '../../api/requests';
 import { useAuth } from '../../context/AuthContext';
-import { getSocket, socketActions, socketEvents } from '../../socket';
+import { getSocket, socketEvents } from '../../socket';
 import { toast } from 'react-toastify';
 
 // Fix Leaflet marker icons
@@ -40,7 +40,7 @@ export default function MapView({ onRequestSelect, showControls = true }) {
       const { data } = await requestAPI.getNearby(lng, lat, radius);
       setRequests(data.requests || []);
     } catch (err) {
-      toast.error('فشل تحميل الطلبات القريبة');
+      toast.err('فشل تحميل الطلبات القريبة');
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export default function MapView({ onRequestSelect, showControls = true }) {
 
     const handleNewMessage = (msg) => {
       if (msg.type === 'location') {
-        const loc = JSON.parse(msg.content);
+       // const loc = JSON.parse(msg.content);
         toast.info(`📍 موقع جديد من ${msg.sender?.name || 'مستخدم'}`);
       }
     };

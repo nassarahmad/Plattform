@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; font-family: 'Inter', system-ui, sans-serif; }
+  body { @apply bg-gray-50 text-gray-900 antialiased; min-height: 100vh; }
+  ::-webkit-scrollbar { @apply w-2; }
+  ::-webkit-scrollbar-track { @apply bg-gray-100; }
+  ::-webkit-scrollbar-thumb { @apply bg-gray-400 rounded-full hover:bg-gray-500 transition; }
+}
+
+@layer components {
+  .btn-primary { @apply bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2.5 rounded-xl transition focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-secondary { @apply bg-gray-100 hover:bg-gray-200 text-gray-900 font-medium px-4 py-2.5 rounded-xl transition focus:ring-2 focus:ring-gray-500 focus:ring-offset-2; }
+  .input-field { @apply w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition placeholder:text-gray-400; }
+  .card { @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition; }
+}
+
+.leaflet-container { @apply w-full h-full rounded-xl; z-index: 1; }

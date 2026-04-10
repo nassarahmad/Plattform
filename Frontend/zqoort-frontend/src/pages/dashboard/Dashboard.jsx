@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';  // ✅ أضفنا useEffect
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import MapView from '../components/map/MapView';
@@ -7,35 +7,31 @@ import NotificationBell from '../components/notifications/NotificationBell';
 import { requestAPI } from '../api/requests';
 import { toast } from 'react-toastify';
 
-
-import Map from "../../components/Map";
-import CreateRequest from "../../components/CreateRequest";
-import { dummyRequests } from "../../data/helpRequests";
-
-export default function Dashboard() {
-  const [requests, setRequests] = useState(dummyRequests);
-
-  const addRequest = (req) => {
-    setRequests(prev => [...prev, req]);
-  };
-
-  return (
-    <div>
-      <h2>Help Map</h2>
-
-      <CreateRequest onCreate={addRequest} />
-
-      <Map requests={requests} />
-    </div>
-  );
-}
+// ✅ حذفنا الاستيرادات غير المستخدمة: Map, CreateRequest, dummyRequests
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showChat, setShowChat] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // ✅ نقلنا منطق التوجيه إلى useEffect
+  useEffect(() => {
+    if (!user) {
+      navigate('/login', { replace: true });
+    }
+  }, [user, navigate]);
+
+  // ✅ عرض تحميل أثناء التحقق من المستخدم
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   const handleCreateRequest = async (e) => {
     e.preventDefault();
@@ -52,19 +48,14 @@ export default function Dashboard() {
       await requestAPI.create(data);
       toast.success('✅ تم إنشاء طلب المساعدة بنجاح');
       setShowCreateModal(false);
-      // Refresh map data here if needed
+      e.target.reset(); // ✅ إعادة تعيين النموذج
     } catch (err) {
       toast.error(err.response?.data?.message || 'فشل إنشاء الطلب');
     }
   };
 
-  if (!user) {
-    navigate('/login');
-    return null;
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" dir="rtl">
       {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
@@ -75,7 +66,7 @@ export default function Dashboard() {
             
             <div className="flex items-center gap-2">
               <span className="text-sm text-gray-700 hidden sm:block">
-                مرحباً، {user.name}
+                مرحباً، {user?.name || 'مستخدم'}
               </span>
               <button 
                 onClick={logout}
@@ -99,20 +90,17 @@ export default function Dashboard() {
             ➕ طلب مساعدة جديد
           </button>
           
-          {user.role === 'helper' && (
+          {user?.role === 'helper' && (
             <button className="px-6 py-3 bg-success text-white rounded-xl font-medium hover:bg-green-700 transition">
               🔍 عرض طلباتي المقبولة
             </button>
           )}
         </div>
 
-        {/* Map */}
+        {/* Map - ✅ حذفنا مكون <Map> الزائد */}
         <MapView 
           onRequestSelect={(req) => { setSelectedRequest(req); setShowChat(true); }}
         />
-        <Map users={[
-  { name: "Ahmad", lat: 31.95, lng: 35.91 }
-]} />
 
         {/* Request Details Panel */}
         {selectedRequest && !showChat && (
@@ -135,7 +123,7 @@ export default function Dashboard() {
                 </div>
               </div>
               
-              {user.role === 'helper' && selectedRequest.status === 'pending' && (
+              {user?.role === 'helper' && selectedRequest.status === 'pending' && (
                 <button 
                   onClick={async () => {
                     try {
@@ -143,7 +131,7 @@ export default function Dashboard() {
                       toast.success('✅ تم قبول الطلب');
                       setSelectedRequest({ ...selectedRequest, status: 'accepted' });
                     } catch (err) {
-                      toast.error(err.response?.data?.message);
+                      toast.error(err.response?.data?.message || 'حدث خطأ');
                     }
                   }}
                   className="px-6 py-3 bg-success text-white rounded-xl font-medium hover:bg-green-700 transition"
@@ -177,7 +165,7 @@ export default function Dashboard() {
           <div className="bg-white rounded-2xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">➕ طلب مساعدة جديد</h2>
-              <button onClick={() => setShowCreateModal(false)} className="text-gray-500 hover:text-gray-700">✕</button>
+              <button onClick={() => setShowCreateModal(false)} className="text-gray-500 hover:text-gray-700 text-xl">✕</button>
             </div>
             
             <form onSubmit={handleCreateRequest} className="space-y-4">
@@ -206,7 +194,7 @@ export default function Dashboard() {
                   <label className="block text-sm font-medium mb-1">الأولوية</label>
                   <select name="urgency" className="w-full px-4 py-2 border rounded-lg">
                     <option value="low">منخفضة</option>
-                    <option value="medium" selected>متوسطة</option>
+                    <option value="medium">متوسطة</option>
                     <option value="high">عالية</option>
                     <option value="critical">حرجة</option>
                   </select>

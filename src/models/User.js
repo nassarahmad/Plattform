@@ -1,32 +1,27 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema({
-  language: { type: String, enum: ['ar', 'en'], default: 'ar' },
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true, lowercase: true },
-  password: { type: String, required: true, minlength: 6 },
-role: { 
-    type: String, 
-    enum: ['help_seeker', 'helper', 'organization', 'admin'], 
-    default: 'help_seeker' 
-  },  permissions: { type: [String], default: [] } ,
-    phone: String,
-isVerified: { type: Boolean, default: false },
-averageRating: { type: Number, default: 0, min: 0, max: 5 },
-reviewCount: { type: Number, default: 0 },
-badges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Badge' }],
-xp: { type: Number, default: 0 },
-level: { type: Number, default: 1 },
-}, { timestamps: true });
+  name: { type: String, required: true, trim: true, minlength: 2 },
+  email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+  password: { type: String, required: true, minlength: 6, select: false },
+  role: { type: String, enum: ['help_seeker', 'helper', 'organization', 'admin'], default: 'help_seeker', index: true },
+  permissions: { type: [String], default: [] },
+  isVerified: { type: Boolean, default: false, index: true },
+  avatar: { type: String, default: null },
+  phone: { type: String, trim: true },
+  currentLocation: {
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], index: '2dsphere' }
+  },
+  lastSeen: { type: Date, default: Date.now },
+  isOnline: { type: Boolean, default: false, index: true },
+  stats: { requestsCreated: { type: Number, default: 0 }, requestsHelped: { type: Number, default: 0 }, rating: { type: Number, default: 0, min: 0, max: 5 } }
+}, { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } });
 
-userSchema.pre('save', async function() {
-  if (!this.isModified('password')) return ;
-  this.password = await bcrypt.hash(this.password, 10);
-});
+userSchema.pre('save', async function(next) { if (!this.isModified('password')) return next(); this.password = await bcrypt.hash(this.password, 12); next(); });
+userSchema.methods.comparePassword = async function(candidatePassword) { return await bcrypt.compare(candidatePassword, this.password); };
+userSchema.virtual('profile').get(function() { return { id: this._id, name: this.name, email: this.email, role: this.role, permissions: this.permissions, avatar: this.avatar, isVerified: this.isVerified, isOnline: this.isOnline, stats: this.stats }; });
+userSchema.methods.updateLocation = function(lat, lng) { this.currentLocation = { type: 'Point', coordinates: [lng, lat] }; this.lastSeen = Date.now(); return this.save(); };
 
-userSchema.methods.comparePassword = async function(candidate) {
-  return await bcrypt.compare(candidate, this.password);
-};
-
-module.exports = mongoose.model('User', userSchema);
+export default mongoose.model('User', userSchema);

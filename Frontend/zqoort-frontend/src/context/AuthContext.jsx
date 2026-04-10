@@ -7,13 +7,21 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   const loginUser = async (data) => {
-    const res = await authAPI.login(data);
-    setUser(res.data);
+    try {
+      const res = await authAPI.login(data);
+      setUser(res.data);
+    } catch (err) {
+      console.error("Login error:", err);
+    }
   };
 
   const registerUser = async (data) => {
-    const res = await authAPI.register(data);
-    setUser(res.data);
+    try {
+      const res = await authAPI.register(data);
+      setUser(res.data);
+    } catch (err) {
+      console.error("Register error:", err);
+    }
   };
 
   return (
